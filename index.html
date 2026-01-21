@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat AEAD IUNIR</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+        #chat-box { border: 1px solid #ccc; padding: 15px; height: 300px; overflow-y: auto; margin-bottom: 10px; background: #f9f9f9; }
+        input { width: 80%; padding: 8px; }
+        button { padding: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>Asistente Técnico IUNIR</h2>
+    <div id="chat-box"></div>
+    <input type="text" id="userInput" placeholder="Escribe tu consulta...">
+    <button onclick="sendMessage()">Enviar</button>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const chatBox = document.getElementById('chat-box');
+            const userText = input.value;
+            if (!userText) return;
+
+            chatBox.innerHTML += `<p><b>Tú:</b> ${userText}</p>`;
+            input.value = '';
+
+            // 1. REEMPLAZA CON TU NUEVA API KEY DE AI STUDIO
+            const API_KEY = 'TU_NUEVA_CLAVE_AQUI'; 
+            const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${API_KEY}`;
+
+            try {
+                const response = await fetch(URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: userText }] }]
+                    })
+                });
+
+                const data = await response.json();
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                chatBox.innerHTML += `<p><b>IA:</b> ${aiResponse}</p>`;
+            } catch (error) {
+                chatBox.innerHTML += `<p style="color:red"><b>Error:</b> No se pudo conectar con Gemini. Revisa la cuota.</p>`;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
