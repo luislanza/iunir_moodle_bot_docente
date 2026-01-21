@@ -1,43 +1,18 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistente Técnico IUNIR</title>
-    <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; }
-        #chat-box { border: 1px solid #ccc; height: 350px; overflow-y: auto; padding: 15px; background: #f9f9f9; border-radius: 10px; margin-bottom: 10px; }
-        .input-group { display: flex; gap: 10px; }
-        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:disabled { background: #ccc; }
-        .error { color: red; font-size: 0.9em; margin-top: 5px; }
-    </style>
-</head>
-<body>
-    <h2>Asistente IUNIR - Moodle</h2>
-    <div id="chat-box"></div>
-    <div class="input-group">
-        <input type="text" id="userInput" placeholder="Escribe tu consulta...">
-        <button id="sendBtn" onclick="sendMessage()">Enviar</button>
-    </div>
-
-    <script>
+<script>
         async function sendMessage() {
             const input = document.getElementById('userInput');
             const btn = document.getElementById('sendBtn');
             const chatBox = document.getElementById('chat-box');
-            const text = input.value.trim();
+            const userText = input.value.trim();
 
-            if (!text) return;
+            if (!userText) return;
 
-            // Interfaz
-            chatBox.innerHTML += `<p><b>Tú:</b> ${text}</p>`;
+            chatBox.innerHTML += `<p><b>Tú:</b> ${userText}</p>`;
             input.value = '';
             btn.disabled = true;
 
-            // LA CLAVE DEBE SER LA DE "Moodle-IA-2026"
-            const API_KEY = 'AIzaSyB1HcjDHQBedOOBE09_3w9l3nud3d-WKNk'; 
+            // ESTA ES TU NUEVA CLAVE ACTUALIZADA
+            const API_KEY = 'AIzaSyBbCurPT8rS8Q5yasHN-EHtv57NwEFE3OE'; 
             const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${API_KEY}`;
 
             try {
@@ -45,26 +20,25 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: text }] }]
+                        contents: [{ parts: [{ text: userText }] }]
                     })
                 });
 
                 const data = await response.json();
 
                 if (response.ok && data.candidates) {
-                    const aiRes = data.candidates[0].content.parts[0].text;
-                    chatBox.innerHTML += `<p><b>IA:</b> ${aiRes}</p>`;
+                    const aiResponse = data.candidates[0].content.parts[0].text;
+                    chatBox.innerHTML += `<p><b>IA:</b> ${aiResponse}</p>`;
                 } else {
-                    const errorMsg = data.error ? data.error.message : "Error de validación";
-                    chatBox.innerHTML += `<p class="error"><b>Error Google:</b> ${errorMsg}</p>`;
+                    // Muestra el error exacto si Google rechaza la clave
+                    const msg = data.error ? data.error.message : "Error desconocido";
+                    chatBox.innerHTML += `<p style="color:red"><b>Error de Google:</b> ${msg}</p>`;
                 }
-            } catch (e) {
-                chatBox.innerHTML += `<p class="error"><b>Error de Red:</b> No hay conexión.</p>`;
+            } catch (error) {
+                chatBox.innerHTML += `<p style="color:red"><b>Error de Red:</b> No se pudo conectar.</p>`;
             }
-
+            
             btn.disabled = false;
             chatBox.scrollTop = chatBox.scrollHeight;
         }
     </script>
-</body>
-</html>
