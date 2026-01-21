@@ -2,47 +2,48 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Asistente IUNIR</title>
+    <title>Chat IUNIR</title>
     <style>
-        body { font-family: sans-serif; max-width: 500px; margin: 50px auto; text-align: center; }
-        #chat { border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px; text-align: left; background: #f9f9f9; margin-bottom: 10px; }
-        input { width: 70%; padding: 10px; }
-        button { padding: 10px; cursor: pointer; background: #007bff; color: white; border: none; }
+        body { font-family: sans-serif; max-width: 500px; margin: 50px auto; }
+        #chat { border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px; background: #f9f9f9; }
+        input { width: 75%; padding: 10px; }
+        button { padding: 10px; }
     </style>
 </head>
 <body>
     <h3>Asistente Moodle IUNIR</h3>
     <div id="chat"></div>
-    <input type="text" id="msg" placeholder="Escribe hola...">
+    <input type="text" id="userInput" placeholder="Escribe 'hola'...">
     <button onclick="enviar()">Enviar</button>
 
     <script>
         async function enviar() {
-            const input = document.getElementById('msg');
+            const input = document.getElementById('userInput');
             const chat = document.getElementById('chat');
-            const userText = input.value;
-            if (!userText) return;
+            const text = input.value;
+            if (!text) return;
 
-            chat.innerHTML += `<p><b>Tú:</b> ${userText}</p>`;
+            chat.innerHTML += `<p><b>Tú:</b> ${text}</p>`;
             input.value = "";
 
-            // TU CLAVE NUEVA DE LAS 12:16 PM
             const API_KEY = 'AIzaSyBbCurPT8rS8Q5yasHN-EHtv57NwEFE3OE'; 
-            const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+            // Usamos gemini-2.0-flash-lite que es el modelo compatible con v1beta
+            const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${API_KEY}`;
 
             try {
                 const response = await fetch(URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }] })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: text }] }] })
                 });
 
                 const data = await response.json();
-                if (data.candidates) {
-                    const txt = data.candidates[0].content.parts[0].text;
-                    chat.innerHTML += `<p><b>IA:</b> ${txt}</p>`;
+                if (data.candidates && data.candidates[0].content) {
+                    const resText = data.candidates[0].content.parts[0].text;
+                    chat.innerHTML += `<p><b>IA:</b> ${resText}</p>`;
                 } else {
-                    chat.innerHTML += `<p style="color:red">Error: ${data.error.message}</p>`;
+                    const msg = data.error ? data.error.message : "Error de respuesta";
+                    chat.innerHTML += `<p style="color:red">Error: ${msg}</p>`;
                 }
             } catch (e) {
                 chat.innerHTML += `<p style="color:red">Error de conexión.</p>`;
