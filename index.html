@@ -4,33 +4,31 @@
     <meta charset="UTF-8">
     <title>Asistente IUNIR</title>
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 20px; }
-        #chat-box { border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px; background: #fafafa; border-radius: 8px; margin-bottom: 10px; }
-        .input-area { display: flex; gap: 10px; }
-        input { flex-grow: 1; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        body { font-family: sans-serif; max-width: 500px; margin: 50px auto; text-align: center; }
+        #chat { border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px; text-align: left; background: #f9f9f9; margin-bottom: 10px; }
+        input { width: 70%; padding: 10px; }
+        button { padding: 10px; cursor: pointer; background: #007bff; color: white; border: none; }
     </style>
 </head>
 <body>
     <h3>Asistente Moodle IUNIR</h3>
-    <div id="chat-box"></div>
-    <div class="input-area">
-        <input type="text" id="userInput" placeholder="Escribe tu consulta...">
-        <button id="sendBtn" onclick="sendMessage()">Enviar</button>
-    </div>
+    <div id="chat"></div>
+    <input type="text" id="msg" placeholder="Escribe hola...">
+    <button onclick="enviar()">Enviar</button>
 
     <script>
-        async function sendMessage() {
-            const input = document.getElementById('userInput');
-            const chatBox = document.getElementById('chat-box');
-            const userText = input.value.trim();
+        async function enviar() {
+            const input = document.getElementById('msg');
+            const chat = document.getElementById('chat');
+            const userText = input.value;
             if (!userText) return;
 
-            chatBox.innerHTML += `<p><b>Tú:</b> ${userText}</p>`;
-            input.value = '';
+            chat.innerHTML += `<p><b>Tú:</b> ${userText}</p>`;
+            input.value = "";
 
-            const API_KEY = 'AIzaSyBbCurPT8rS8Q5yasHN-EHtv57NwEFE3OE';
-            const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${API_KEY}`;
+            // TU CLAVE NUEVA DE LAS 12:16 PM
+            const API_KEY = 'AIzaSyBbCurPT8rS8Q5yasHN-EHtv57NwEFE3OE'; 
+            const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
             try {
                 const response = await fetch(URL, {
@@ -40,16 +38,15 @@
                 });
 
                 const data = await response.json();
-                if (response.ok && data.candidates) {
-                    const aiRes = data.candidates[0].content.parts[0].text;
-                    chatBox.innerHTML += `<p><b>IA:</b> ${aiRes}</p>`;
+                if (data.candidates) {
+                    const txt = data.candidates[0].content.parts[0].text;
+                    chat.innerHTML += `<p><b>IA:</b> ${txt}</p>`;
                 } else {
-                    chatBox.innerHTML += `<p style="color:red">Error: ${data.error.message}</p>`;
+                    chat.innerHTML += `<p style="color:red">Error: ${data.error.message}</p>`;
                 }
             } catch (e) {
-                chatBox.innerHTML += `<p style="color:red">Error de conexión.</p>`;
+                chat.innerHTML += `<p style="color:red">Error de conexión.</p>`;
             }
-            chatBox.scrollTop = chatBox.scrollHeight;
         }
     </script>
 </body>
